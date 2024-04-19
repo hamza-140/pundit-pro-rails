@@ -1,0 +1,15 @@
+  
+  <div id="container">
+    <p>
+      <%= bug.bugger %>: <%= bug.body %>
+    </p>
+    <% if can?(:destroy, bug) %>
+      <p style="text-decoration:none; background: none; border: none; padding: 0; margin-left: 5px;">
+        <%= link_to "Delete", [bug.project, bug], data: {
+                      turbo_method: :delete,
+                      turbo_confirm: "Are you sure?"
+                    }, class:"bi bi-trash3-fill px-2",style:'color:red;background:none;border:none' %>
+      </p>
+    <% end %>
+  </div>
+

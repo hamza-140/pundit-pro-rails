@@ -1,0 +1,34 @@
+<div class="wrapper">
+<h1 class="text-center name">Edit Project</h1>
+
+
+  <%= form_for(@project) do |f| %>
+  <%= render "users/shared/error_messages", resource: @project %>
+
+    <div class="form-field d-flex align-items-center">
+      <%= f.label :name %><br>
+      <%= f.text_field :name %>
+    </div>
+
+    <div class="form-field d-flex align-items-center" style="height: 100px;">
+      <%= f.label :description %><br>
+      <%= f.text_field :description %>
+    </div>
+    
+      <div class="field">
+        <%= f.label :developers %><br>
+        <%= f.collection_check_boxes :user_ids, User.where(role: "developer"), :id, :name %>
+      </div>
+
+      <div class="field">
+        <%= f.label :quality_assurance %><br>
+        <%= f.collection_check_boxes :user_ids, User.where(role: "quality_assurance"), :id, :name %>
+      </div>
+
+    <div class="actions">
+      <%= f.submit "Update",class:"btn mt-3"%>
+    </div>
+    <%= link_to "Return", "javascript:history.back()", class: "btn mt-3" %>
+    <% end %>
+  
+</div>

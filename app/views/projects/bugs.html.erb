@@ -1,0 +1,32 @@
+<div class="d-flex justify-content-center mb-3 align-items-center">
+    <h1>Project Bugs</h1>
+</div>
+<nav class="navbar">
+    <div class="container-fluid">
+      <h2>BugMe</h2>
+      <form class="d-flex" id="searchForm" role="search">
+        <input class="form-control me-2" id="searchInput" type="search" placeholder="Search" aria-label="Search" style="width:100% !important">
+        <button class="btn btn-outline-success mx-2" type="submit">Search</button>
+          <a style="text-decoration:none" class="btn btn-primary mx-2 text-nowrap" href="<%= projects_path %>">Return</a>
+      </form>
+    </div>
+  </nav>
+<h3>List of Projects:</h3>
+<div id="searchResults">
+  <table class="table">
+    <% @projects.each do |project| %>
+        <tbody class="projectRow">
+          <tr>
+            <td>
+              <div style="display: flex; align-items: center;">
+                <div style="flex: 1;"><%= project.name %></div>
+                <div class="d-flex justify-content-center align-items-center">
+                  <%= link_to "New Bug", new_project_bug_path(project) ,class:"btn btn-outline-warning mx-2"%>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+    <% end %>
+  </table>
+</div>

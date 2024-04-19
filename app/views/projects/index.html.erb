@@ -1,0 +1,114 @@
+<div style="display: flex; justify-content: space-between;">
+  <h1 style="margin: 0 auto;"></h1>
+  <h1>
+    <% if user_signed_in? %>
+      <%= button_to "", destroy_user_session_path, method: :delete, data: { confirm: "Are you sure?" }, style: "text-decoration:none; background: none; border: none; padding: 0;", class: "bi bi-box-arrow-right", style: "color: red; background: none; border: none;" %>
+    <% else %>
+      <%= link_to "", new_user_session_path, style: "text-decoration:none; background: none; border: none; padding: 0;color: green; background: none; border: none;", class: "bi bi-box-arrow-left" %>
+    <% end %>
+  </h1>
+</div>
+<nav class="navbar">
+    <h2>BugMe</h2>
+  <div class="d-flex justify-content-between align-items-center">
+  <form class="d-flex" id="searchForm" style="flex-grow: 1;" role="search">
+    <%= form_with(url: projects_path, method: "get") do %>
+      <%= text_field_tag :q, params[:q],class:"form-control me-2", placeholder: "Search..." %>
+      <%= submit_tag "Search",class:"btn btn-outline-success mx-2" %>
+    <% end %>
+    <div class="d-flex">
+    <!-- <input class="form-control me-2" id="searchInput" type="search" placeholder="Search" aria-label="Search" style="width:100% !important">
+    <button class="btn btn-outline-success mx-2" type="submit">Search</button> -->
+    <% if policy(Project).create? %>
+      <a style="text-decoration:none" class="btn btn-outline-primary mx-2 text-nowrap" href="<%= new_project_path %>">New Project</a>
+    <% end %>
+    <a href="#" style="text-decoration:none" class="btn btn-outline-info mx-2 text-nowrap" data-bs-toggle="modal" data-bs-target="#exampleModalCenter">
+      <i class="bi bi-info-circle"></i>
+    </a>
+    <a href="<%=projects_users_path%>" style="text-decoration:none" class="btn btn-outline-warning mx-2 text-nowrap">
+      <i class="bi bi-people"></i>
+    </a>
+    </div>
+  </div>
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">BugMe Infography</h5>
+          </div>
+          <div class="modal-body">
+            <h3>💼 Manager</h3>
+            <ul>
+              <li>Can create, read, update, and delete projects.</li>
+              <li>Can assign users (developers and quality assurance) to projects.</li>
+              <li>Can add bugs to projects.</li>
+              <li>Can view all bugs associated with the projects they manage.</li>
+            </ul>
+
+            <h3>👨🏻‍💼 Quality Assurance</h3>
+            <ul>
+              <li>Can view projects they are assigned to.</li>
+              <li>Can view bugs associated with the projects they are assigned to.</li>
+              <li>Can add bugs to projects they are assigned to.</li>
+              <li>Cannot create, update, or delete projects.</li>
+              <li>Can assign developers to bug.</li>
+              <li>Cannot view bugs in projects they are not assigned to.</li>
+            </ul>
+
+            <h3>👨🏻‍💻 Developer</h3>
+            <ul>
+              <li>Can view projects they are assigned to only.</li>
+              <li>Can view bugs associated with the projects they are assigned to only.</li>
+              <li>Cannot create, update, or delete projects.</li>
+            </ul>
+            <%= pie_chart User.group(:role).count %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</nav>
+
+
+
+<h4>List of Projects:</h4>
+<div id="searchResults">
+  <table class="table">
+    <% if @items.empty? %>
+      <div style="display: flex; justify-content: center; align-items: center; height: 10vh;">
+        <p>No Project! Add New Project.</p>
+      </div>
+    <% else %>
+    
+      <% @items.each do |project| %>
+        <tbody class="projectRow">
+          <tr>
+            <td>
+              <div style="display: flex; align-items: center;">
+                <div style="flex: 1;"><%= project.name %></div>
+                <div class="d-flex justify-content-center align-items-center">
+                  <%= link_to "", project_path(project), class: "bi bi-eye-fill px-2", style: "color:green" %>
+                  <% if policy(project).edit? %> <!-- Use `policy(project)` instead of `policy(Project)` -->
+                  <%= link_to "", edit_project_path(project), class: "bi bi-pencil-square px-4", style: "color:orange" %>
+                    <%= link_to "Delete", project, data: {
+                      turbo_method: :delete,
+                      turbo_confirm: "Are you sure?"
+                    },style:"text-decoration:none;color:red;margin-left:5px" %>
+                    
+                  <% end %>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      <% end %>
+    <% end %>
+  </table>
+</div>
+<%== pagy_bootstrap_nav(@pagy) %>
+
+
+<%if current_user%>
+<p>Logged in as <%= current_user.email %> </p>
+<%end%>

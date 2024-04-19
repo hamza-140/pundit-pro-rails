@@ -1,0 +1,19 @@
+<div class="wrapper">
+<h2>List of Users</h2>
+
+<!-- <input type="text" id="searchInput" placeholder="Search by email"> -->
+<% if @users.empty? %>
+  <p>No users found!</p>
+<% else %>
+  <ul>
+    <% @users.each do |user| %>
+      <li class="userRow"><%= user.email %></li>
+    <% end %>
+  </ul>
+<% end %>
+<div class="pag-bar">
+  <%== pagy_bootstrap_nav(@pagy) %>
+</div>
+<a style="text-decoration:none" class="btn mx-2 text-nowrap" href="/">Return</a>
+
+</div>

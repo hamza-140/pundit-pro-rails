@@ -1,0 +1,166 @@
+<div class="d-flex justify-content-center align-items-center">
+    <h1>Project Details</h1>
+  </div>
+  <form>
+    <div class="mb-3">
+      <label for="name" class="form-label">Project Name:</label>
+      <input readonly class="form-control" id="name" aria-describedby="name" value='<%= @project.name %>' >
+    </div>
+    <div class="mb-3">
+      <label for="description" class="form-label">Project Description:</label>
+      <input readonly class="form-control" id="description" aria-describedby="description" value='<%= @project.description %>'>
+    </div>
+    <div class="mb-3">
+      <label for="project_users" class="form-label">Project Users:</label>
+      <input readonly class="form-control" id="project_users" aria-describedby="project_users" value='<%= @project.users.pluck(:name).join(", ") %>'>
+    </div>
+    <div class="mb-3">
+      <label for="project_users" class="form-label">Project Creator:</label>
+      <% creator = User.find(@project.created_by) %>
+      <input readonly class="form-control" id="project_users" aria-describedby="project_users" value='<%= creator.name %>'>
+    </div>
+    <%= link_to "Edit Project", edit_project_path(@project), class: "btn btn-outline-success mx-2" if policy(@project).edit?%>
+    <a style="text-decoration:none" class="btn btn-outline-warning mx-2 text-nowrap" href="<%= new_project_bug_path(@project) %>">New Bug</a>
+  <a style="text-decoration:none" class="btn btn-outline-primary mx-2 text-nowrap" href="<%= projects_path %>">Return</a>
+    <h4 class="mt-5">List of Bugs:</h4>
+    <div>
+      <div class="d-flex justify-content-between">
+        <div class="mt-3">
+          <input id="searchInput" type="text" class="form-control" placeholder="Search project..." style="margin-top: 15px;">
+        </div>
+        <div class="mb-3 me-3">
+          <label for="typeFilter" class="form-label">Type:</label>
+          <select id="typeFilter" class="form-select ">
+            <option value="">All</option>
+            <option value="feature">feature</option>
+            <option value="bug">bug</option>
+            <!-- Add more options for other types as needed -->
+          </select>
+        </div>
+    
+        <div class="mb-3 me-3" style="width: 150px;">
+          <label for="statusFilter" class="form-label">Status:</label>
+          <select id="statusFilter" class="form-select" >
+            <option value="" >All</option>
+            <!-- Options will be dynamically populated based on bug type -->
+          </select>
+        </div>
+    
+        <!-- Search Bar -->
+        
+      </div>
+    </div>
+    
+<!-- Table for Bugs -->
+<div id="searchResults">
+  <table class="table">
+    <!-- Table headers -->
+    <thead>
+      <tr>
+        <th>Bug Name</th>
+        <th>Bug Status</th>
+        <th>Bug Type</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @bugs.each do |bug| %>
+        <tr class="projectRow">
+          <td><a href="<%= project_bug_path(@project, bug) %>" style="text-decoration: none; color: inherit;"><%= bug.title %></a></td>
+          <td><%= bug.status %></td>
+          <td><%= bug.bug_type %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+  $(document).ready(function() {
+    $('#typeFilter').on('change', function() {
+      var type = $(this).val();
+      var statusOptions = $('#statusFilter');
+
+      statusOptions.empty();
+
+      if (type === 'feature') {
+        statusOptions.append($('<option>', {
+          value: '',
+          text: 'All'
+        }));
+        statusOptions.append($('<option>', {
+          value: 'new',
+          text: 'New'
+        }));
+        statusOptions.append($('<option>', {
+          value: 'started',
+          text: 'Started'
+        }));
+        statusOptions.append($('<option>', {
+          value: 'completed',
+          text: 'Completed'
+        }));
+      } else if (type === 'bug') {
+        // Populate status options for bug
+        statusOptions.append($('<option>', {
+          value: '',
+          text: 'All'
+        }));
+        statusOptions.append($('<option>', {
+          value: 'new',
+          text: 'New'
+        }));
+        statusOptions.append($('<option>', {
+          value: 'started',
+          text: 'Started'
+        }));
+        statusOptions.append($('<option>', {
+          value: 'resolved',
+          text: 'Resolved'
+        }));
+      } else {
+        statusOptions.append($('<option>', {
+          value: '',
+          text: 'All'
+        }));
+      }
+    });
+
+    $('#searchInput').on('keyup', function() {
+      var searchText = $(this).val().toLowerCase();
+      $('.projectRow').each(function() {
+        var projectName = $(this).find('td:first-child').text().toLowerCase();
+        if (projectName.includes(searchText)) {
+          $(this).show();
+        } else {
+          $(this).hide();
+        }
+      });
+    });
+
+    $('#statusFilter, #typeFilter').on('change', function() {
+      var status = $('#statusFilter').val();
+      var type = $('#typeFilter').val();
+console.log(type)
+      $('.projectRow').each(function() {
+        var bugStatus = $(this).find('td:nth-child(2)').text().toLowerCase();
+        var bugType = $(this).find('td:nth-child(3)').text().toLowerCase();
+        var showBug = true;
+        console.log(bugType)
+
+        if (status && bugStatus !== status) {
+          showBug = false;
+        }
+        if (type && bugType !== type) {
+          showBug = false;
+        }
+
+        if (showBug) {
+          $(this).show();
+        } else {
+          $(this).hide();
+        }
+      });
+    });
+  });
+</script>

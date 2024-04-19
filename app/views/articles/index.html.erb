@@ -1,0 +1,30 @@
+<h1>Articles List</h1>
+<%= link_to "New Article", new_article_path %>
+
+<% if @articles.empty? %>
+  <p>Add some articles first!</p>
+<% else %>
+  <ul>
+    <% @articles.each do |article| %>
+      <li><%= article.title %></li>
+    <% end %>
+  </ul>
+<% end %>
+
+<h2>List of Users</h2>
+<% if @users.empty? %>
+  <p>No users found!</p>
+<% else %>
+  <ul>
+    <% @users.each do |user| %>
+      <li><%= user.email %></li>
+    <% end %>
+  </ul>
+<% end %>
+<div class="pag-bar">
+    <%== pagy_bootstrap_nav(@pagy) %>
+  </div>
+  <%if current_user%>
+<p>Logged in as <%= current_user.name %> </p>
+<%end%>
+<%= link_to "Logout", destroy_user_session_path %>

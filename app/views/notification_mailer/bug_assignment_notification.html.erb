@@ -1,0 +1,25 @@
+<!-- app/views/notification_mailer/bug_assignment_notification.html.erb -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>New Bug Assigned</title>
+</head>
+<body>
+  <h1>New Bug Assigned</h1>
+  <p>Hello <%= @user.name %>,</p>
+  <p>A new bug has been assigned. Here are the details:</p>
+  <ul>
+    <li>Title: <%= @bug.title %></li>
+    <li>Description: <%= @bug.description %></li>
+    <li>Deadline: <%= @bug.deadline %></li>
+    <%@creator_bug = User.find(@bug.user_id)%>
+    <li>Developer: <%= @creator_bug.name %></li>
+    <%@creator = User.find(@bug.created_by)%>
+    <li>Creator: <%= @creator.name %></li>
+
+
+  </ul>
+  <p>Feel free to check the bug for more details.</p>
+</body>
+</html>

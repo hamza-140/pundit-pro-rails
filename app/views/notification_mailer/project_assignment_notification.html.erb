@@ -1,0 +1,18 @@
+<!-- app/views/notification_mailer/project_assignment.html.erb -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Project Assignment Notification</title>
+</head>
+<body>
+  <h1>Project Assignment Notification</h1>
+  <p>Hello <%= @user.name %>,</p>
+  <p>You have been added to a project. Here are the details:</p>
+  <ul>
+    <li>Project Name: <%= @project.name %></li>
+    <li>Description: <%= @project.description %></li>
+  </ul>
+  <p>Feel free to check the project for more details.</p>
+</body>
+</html>

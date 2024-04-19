@@ -1,0 +1,59 @@
+<div class="d-flex justify-content-center align-items-center">
+  <h1>Bug Details of <%=@project.name%></h1>
+</div>
+
+<form>
+  <div class="mb-3">
+    <label for="title" class="form-label">Bug Title:</label>
+    <input readonly class="form-control" id="title" value='<%= @bug.title %>'>
+  </div>
+
+  <div class="mb-3">
+    <label for="description" class="form-label">Bug Description:</label>
+    <textarea readonly class="form-control" id="description"><%= @bug.description %></textarea>
+  </div>
+
+  <div class="mb-3">
+    <label for="deadline" class="form-label">Deadline:</label>
+    <input readonly class="form-control" id="deadline" value='<%= @bug.deadline %>'>
+  </div>
+
+  <div class="mb-3">
+    <label for="screenshot" class="form-label">Screenshot:</label>
+    <% if @bug.screenshot.present? %>
+    <%= image_tag(@bug.screenshot.url, alt: 'Screenshot of the bug') %>
+  <% end %>    
+</div>
+  
+
+  <div class="mb-3">
+    <label for="bug_type" class="form-label">Bug Type:</label>
+    <input readonly class="form-control" id="bug_type" value='<%= @bug.bug_type %>'>
+  </div>
+
+  <div class="mb-3">
+    <label for="status" class="form-label">Status:</label>
+    <input readonly class="form-control" id="status" value='<%= @bug.status %>'>
+  </div>
+
+  <div class="mb-3">
+    <label for="bug_developer" class="form-label">Bug Developer:</label>
+    <input readonly class="form-control" id="bug_developer" value="<%= @bug.user ? @bug.user.email : 'Unassigned' %>">
+  </div>
+  <div class="mb-3">
+    <label for="project_users" class="form-label">Bug Creator:</label>
+    <% creator = User.find(@bug.created_by) %>
+    <input readonly class="form-control" id="project_users" aria-describedby="project_users" value='<%= creator.name %>'>
+  </div>
+</form>
+
+<% if policy(@bug).update? %>
+  <%= link_to 'Edit', edit_project_bug_path(@project, @bug), class: "btn btn-outline-success mb-3" %> 
+<% end %>
+<% if policy(@bug).destroy?%>
+<%= link_to "Delete", [@bug.project, @bug], data: {
+  turbo_method: :delete,
+  turbo_confirm: "Are you sure?"
+} ,class:"btn btn-outline-danger mb-3"%>
+<% end %>
+<%= link_to 'Return', project_path(@project), class: "btn btn-outline-primary mb-3" %>

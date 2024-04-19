@@ -1,0 +1,107 @@
+<div class="nested-form-wrapper" data-new-record="<%=f.object.new_record?%>">
+    <%= f.hidden_field :_destroy %>
+    <div class="text-center mt-4 name">
+      New Bug
+</div>
+  <div class="mb-3">
+    <%= f.label :title, class: "form-label" %>
+    <%= f.text_field :title, class: "form-control", placeholder: 'Bug Title' ,autofocus:true%>
+  </div>
+  <div class="mb-3">
+    <%= f.label :description, class: "form-label" %>
+    <%= f.text_area :description, class: "form-control", placeholder: 'Project Description' %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :deadline, class: "form-label" %>
+    <%= f.date_field :deadline, class: "form-control", id: "deadline-field", min: "#{Date.today.strftime("%Y-%m-%d")}" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :screenshot, class: "form-label" %>
+    <div id="screenshot-upload">
+      <%= f.file_field :screenshot, class: "form-control", accept: "image/png, image/gif" %>
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :bug_type, class: "form-label" %>
+    <%= f.select :bug_type, ['feature', 'bug'], class: "form-select", id: "bug" %>
+  </div>
+  
+  <div class="mb-3">
+    <%= f.label :status, class: "form-label" %>
+    <%= f.select :status,  ['new', 'started','completed'],class: "form-select", id: "status-field" %>
+  </div>
+  
+  
+  <button type="button" data-action="nested-form#remove">Remove Bug</button>
+</div>
+ <script type="text/javascript">
+
+var bugType = document.getElementById('project_bugs_attributes_0_bug_type').value;
+console.log(bugType)
+var statusField = document.getElementById('project_bugs_attributes_0_status').value;
+console.log(statusField)
+document.getElementById('project_bugs_attributes_0_bug_type').addEventListener('change', () => {
+    var bugType = document.getElementById('project_bugs_attributes_0_bug_type').value;
+    var statusField = document.getElementById('project_bugs_attributes_0_status');
+    statusField.innerHTML = "";
+    var statusOptions;
+  if (bugType === 'feature') {
+    statusOptions = ['new', 'started', 'completed'];
+  } else {
+    statusOptions = ['new', 'started', 'resolved'];
+  }
+
+  // Append new options
+  statusOptions.forEach(function(option) {
+    var optionElement = document.createElement('option');
+    optionElement.text = option.charAt(0) + option.slice(1); // Capitalize first letter
+    optionElement.value = option;
+    statusField.appendChild(optionElement);
+  });
+    console.log(bugType);
+});
+var screenshotField = document.getElementById('bug_screenshot');
+  var removeButton = document.getElementById('remove-screenshot');
+
+  // Check if a file is uploaded
+  screenshotField.addEventListener('change', function() {
+    if (screenshotField.files.length > 0) {
+      // Display the remove button
+      removeButton.style.display = 'block';
+    } else {
+      // Hide the remove button if no file is uploaded
+      removeButton.style.display = 'none';
+    }
+  });
+
+  // Remove uploaded file when the remove button is clicked
+  removeButton.addEventListener('click', function() {
+    event.preventDefault();
+    // Reset the file input field
+    screenshotField.value = '';
+    // Hide the remove button
+    removeButton.style.display = 'none';
+  });
+  var screenshotField = document.getElementById('bug_screenshot');
+  console.log(screenshotField)
+var imageTag = document.getElementById('screenshot-preview');
+console.log(imageTag)
+// // Listen for changes in the file input field
+screenshotField.addEventListener('change', function(event) {
+  var file = event.target.files[0]; // Get the selected file
+  var reader = new FileReader(); // Create a file reader object
+
+  reader.onload = function(e) {
+    // Set the src attribute of the image tag to the data URL of the selected file
+    imageTag.src = e.target.result;
+    imageTag.style.width = '200px';
+    imageTag.style.height = '200px';
+  };
+
+  // Read the selected file as a data URL
+  reader.readAsDataURL(file);
+});
+</script>
