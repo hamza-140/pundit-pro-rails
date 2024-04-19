@@ -20,7 +20,11 @@
       <input readonly class="form-control" id="project_users" aria-describedby="project_users" value='<%= creator.name %>'>
     </div>
     <%= link_to "Edit Project", edit_project_path(@project), class: "btn btn-outline-success mx-2" if policy(@project).edit?%>
-    <a style="text-decoration:none" class="btn btn-outline-warning mx-2 text-nowrap" href="<%= new_project_bug_path(@project) %>">New Bug</a>
+    <!-- <a style="text-decoration:none" class="btn btn-outline-warning mx-2 text-nowrap" href="<%= new_project_bug_path(@project) %>">New Bug</a> -->
+    <% if policy(Bug.new(project: @project)).create? %>
+  <a style="text-decoration:none" class="btn btn-outline-warning mx-2 text-nowrap" href="<%= new_project_bug_path(@project) %>">New Bug</a>
+<% end %>
+
   <a style="text-decoration:none" class="btn btn-outline-primary mx-2 text-nowrap" href="<%= projects_path %>">Return</a>
     <h4 class="mt-5">List of Bugs:</h4>
     <div>

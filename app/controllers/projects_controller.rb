@@ -7,7 +7,14 @@ class ProjectsController < ApplicationController
     @projects = policy_scope(Project).order(created_at: :desc)
     @query = params[:q]
     @items = @projects.where("name LIKE ?", "%#{@query}%")
-    @pagy, @items = pagy(@items)
+
+    begin
+      @pagy, @items = pagy(@items)
+    rescue Pagy::Error => e
+      flash[:alert] = "Pagy error: #{e.message}. Redirecting to homepage."
+      redirect_to root_path and return
+    end
+
     authorize @projects
   end
 
@@ -43,17 +50,28 @@ class ProjectsController < ApplicationController
   end
 
   def update
+    authorize @project
+
     # Store the current users before updating the project
     current_user_ids = @project.user_ids
+
+    # Store the current assigned bug users before updating the project
+    current_bug_user_ids = @project.bugs.pluck(:user_id)
 
     if @project.update(project_params)
       # Determine newly added users
       new_user_ids = @project.user_ids - current_user_ids
+
       # Send notification to newly added users
       new_user_ids.each do |user_id|
         SendNotificationJob.perform_later([user_id], :project_assignment, @project)
       end
-      # SendNotificationJob.perform_later(new_users.pluck(:id), :project_assignment, @project)
+
+      # Remove user from associated bugs if they are removed from the project
+      removed_user_ids = current_user_ids - @project.user_ids
+      removed_user_ids.each do |user_id|
+        @project.bugs.where(user_id: user_id).update_all(user_id: nil)
+      end
 
       redirect_to @project, notice: "Project updated successfully."
     else
@@ -61,7 +79,9 @@ class ProjectsController < ApplicationController
     end
   end
 
+
   def destroy
+    authorize @project
     @project.destroy
     redirect_to projects_url, notice: "Project deleted successfully."
   end

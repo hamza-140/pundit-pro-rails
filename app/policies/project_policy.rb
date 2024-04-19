@@ -19,10 +19,6 @@ class ProjectPolicy < ApplicationPolicy
     user_is_creator?
   end
 
-  def destroy?
-    user.present? && user.role == "manager"
-  end
-
   def create?
     user.present? && user.role == "manager"
   end
@@ -32,11 +28,11 @@ class ProjectPolicy < ApplicationPolicy
   end
 
   def update?
-    user.present? && user.role == "manager" && (record.users.include?(user) || record.created_by == user.id)
+    user_is_creator?
   end
 
   def destroy?
-    user.present? && user.role == "manager" && record.users.include?(user)
+    user_is_creator?
   end
 
   class Scope < Scope
