@@ -2,20 +2,25 @@ class ProjectsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_project, only: [:show, :edit, :update, :destroy]
 
-  def index
-    # puts params.inspect # Add this line for debugging
+  def search
     @projects = policy_scope(Project).order(created_at: :desc)
-    @query = params[:q]
-    @items = @projects.where("name LIKE ?", "%#{@query}%")
 
-    begin
-      @pagy, @items = pagy(@items)
-    rescue Pagy::Error => e
-      flash[:alert] = "Pagy error: #{e.message}. Redirecting to homepage."
-      redirect_to root_path and return
-    end
+    query = params[:q].to_s.strip
+    @items = @projects.where("name LIKE ?", "%#{query}%")
 
-    authorize @projects
+    render json: { projects: @items }, status: :ok
+  end
+
+  def all
+    @projects = policy_scope(Project).order(created_at: :desc)
+
+    render json: { projects: @projects }, status: :ok
+  end
+
+  def index
+    @projects = policy_scope(Project).order(created_at: :desc)
+    query = params[:q]
+    @items = @projects.where("name LIKE ?", "%#{query}%")
   end
 
   def bugs
@@ -79,7 +84,6 @@ class ProjectsController < ApplicationController
     end
   end
 
-
   def destroy
     authorize @project
     @project.destroy
@@ -116,7 +120,11 @@ class ProjectsController < ApplicationController
   end
 
   def users
-    @pagy, @users = pagy(User.all)
+    puts "in users"
+    puts params.inspect # Output params to the console
+    query = params[:q]
+    @users = User.where("email LIKE ?", "%#{query}%")
+    @pagy, @users = pagy(@users)
     # @users = User.all
   end
 

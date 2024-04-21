@@ -13,8 +13,8 @@
   <div class="d-flex justify-content-between align-items-center">
   <form class="d-flex" id="searchForm" style="flex-grow: 1;" role="search">
     <%= form_with(url: projects_path, method: "get") do %>
-      <%= text_field_tag :q, params[:q],class:"form-control me-2", placeholder: "Search..." %>
-      <%= submit_tag "Search",class:"btn btn-outline-success mx-2" %>
+    <input id="searchInput" type="text" class="form-control" placeholder="Search project..." style="margin-top: 15px;">
+    <!-- <%= submit_tag "Search",class:"btn btn-outline-success mx-2" %> -->
     <% end %>
     <div class="d-flex">
     <!-- <input class="form-control me-2" id="searchInput" type="search" placeholder="Search" aria-label="Search" style="width:100% !important">
@@ -86,7 +86,7 @@
           <tr>
             <td>
               <div style="display: flex; align-items: center;">
-                <div style="flex: 1;"><%= project.name %></div>
+                <div id="searchResults" style="flex: 1;"><%= project.name %></div>
                 <div class="d-flex justify-content-center align-items-center">
                   <%= link_to "", project_path(project), class: "bi bi-eye-fill px-2", style: "color:green" %>
                   <% if policy(project).edit? %> <!-- Use `policy(project)` instead of `policy(Project)` -->
@@ -106,9 +106,82 @@
     <% end %>
   </table>
 </div>
-<%== pagy_bootstrap_nav(@pagy) %>
+
 
 
 <%if current_user%>
 <p>Logged in as <%= current_user.email %> </p>
 <%end%>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+  $(document).ready(function () {
+    $('#searchInput').on('keyup', function() {
+      var searchText = $(this).val().toLowerCase();
+      $('.projectRow').each(function() {
+        var projectName = $(this).find('td:first-child').text().toLowerCase();
+        if (projectName.includes(searchText)) {
+          $(this).show();
+        } else {
+          $(this).hide();
+        }
+      });
+    });
+  }
+  );
+
+  // $(document).ready(function () {
+  //   fetchAllProjects()
+  //   // Event handler for keyup event on search input field
+  //   $("#searchProjects").keyup(function () {
+  //     // Get the search query entered by the user
+  //     var query = $(this).val().trim();
+
+  //     // Perform Ajax request to the server only if the query is not empty
+  //     if (query !== "") {
+  //       $.ajax({
+  //         url: "/projects/search", // Endpoint to handle search query
+  //         method: "GET",
+  //         data: { q: query }, // Pass the search query as a parameter
+  //         dataType: "json",
+  //         success: function (response) {
+  //           // Update UI with search results
+  //           displaySearchResults(response.projects);
+  //         },
+  //         error: function (xhr, status, error) {
+  //           console.error("Error:", error);
+  //         },
+  //       });
+  //     } else {
+  //       // Fetch all projects if the search query is empty
+  //       fetchAllProjects();
+  //     }
+  //   });
+  // });
+
+  // // Function to fetch all projects
+  // function fetchAllProjects() {
+  //   $.ajax({
+  //     url: "/projects/all", // Endpoint to fetch all projects
+  //     method: "GET",
+  //     dataType: "json",
+  //     success: function (response) {
+  //       // Update UI with all projects
+  //       displaySearchResults(response.projects);
+  //     },
+  //     error: function (xhr, status, error) {
+  //       console.error("Error:", error);
+  //     },
+  //   });
+  // }
+
+  // // Function to display search results in the UI
+  // function displaySearchResults(projects) {
+  //   var resultsContainer = $("#searchResults");
+  //   resultsContainer.empty(); // Clear previous search results
+
+  //   // Iterate over the projects and append them to the results container
+  //   $.each(projects, function (index, project) {
+  //     var projectHtml = "<div>" + project.name + "</div>"; // Customize as needed
+  //     resultsContainer.append(projectHtml);
+  //   });
+</script>

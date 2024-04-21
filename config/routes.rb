@@ -13,6 +13,8 @@ Rails.application.routes.draw do
 
   root to: 'projects#index'
   get '/projects/bugs', to: 'projects#bugs'
+  get '/projects/search', to: 'projects#search'
+  get '/projects/all', to: 'projects#all'
   get '/projects/users', to: 'projects#users'
 
   resources :projects do

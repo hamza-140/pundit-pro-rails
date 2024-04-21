@@ -9,21 +9,20 @@ class BugsController < ApplicationController
   end
 
   def create
+    
     @bug = @project.bugs.new(bug_params)
     @bug.created_by = current_user.id
 
     if @bug.save
       user_id = params[:bug][:user_id]
-    unless user_id.blank?
-      SendNotificationJob.perform_later([user_id], :bug_assignment, @bug)
-    end
+      unless user_id.blank?
+        SendNotificationJob.perform_later([user_id], :bug_assignment, @bug)
+      end
       redirect_to project_bug_path(@project, @bug), notice: "Bug created successfully."
     else
-      render :new , status: :unprocessable_entity
+      render :new, status: :unprocessable_entity
     end
   end
-
-
 
   def update
     authorize @bug
@@ -53,6 +52,7 @@ class BugsController < ApplicationController
     @bug.update(screenshot: nil) # Assuming `screenshot` is the name of the column
     # redirect_to @bug, notice: 'Screenshot was successfully cleared.'
   end
+
   def show
     authorize @bug
   end
@@ -65,6 +65,7 @@ class BugsController < ApplicationController
   def edit
     authorize @bug
   end
+
   def remove_screenshot
     # @bug.screenshot = nil
     print("============================================================")
@@ -73,6 +74,7 @@ class BugsController < ApplicationController
     # @bug.save
     # redirect_to edit_project_bug_path(@bug), notice: "Screenshot removed successfully."
   end
+
   private
 
   def set_project
@@ -84,7 +86,6 @@ class BugsController < ApplicationController
   end
 
   def bug_params
-    params.require(:bug).permit(:title, :description, :user_id, :deadline, :screenshot, :bug_type, :status,:remove_screenshot)
+    params.require(:bug).permit(:title, :description, :user_id, :deadline, :screenshot, :bug_type, :status, :remove_screenshot)
   end
-
 end

@@ -1,6 +1,11 @@
 <div class="wrapper">
 <h2>List of Users</h2>
-
+<form class="d-flex" id="searchForm" style="flex-grow: 1;" role="search">
+  <%= form_with(url: projects_users_path, method: "get") do %>
+    <%= text_field_tag :q, params[:q],class:"form-control me-2", placeholder: "Search..." %>
+    <%= submit_tag "Search",class:"btn btn-outline-success mx-2" %>
+  <% end %>
+</form>
 <!-- <input type="text" id="searchInput" placeholder="Search by email"> -->
 <% if @users.empty? %>
   <p>No users found!</p>

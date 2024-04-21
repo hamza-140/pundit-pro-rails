@@ -7,7 +7,7 @@ class BugPolicy < ApplicationPolicy
   def show?
     user.present? && ((user.role == "manager" && record.project.created_by == user.id) || # Managers can see all bugs in the project they created
                       (user.role == "developer" && record.project.users.include?(user)) || # Developers can see bugs if they are part of the project
-                      (user.role == "quality_assurance" && record.project.users.include?(user)) # Quality assurance users can see bugs if they are part of the project
+                      (user.role == "quality_assurance" && record.project.users.include?(user) && record.created_by == user.id) # Quality assurance users can see bugs if they are part of the project
       )
   end
 
