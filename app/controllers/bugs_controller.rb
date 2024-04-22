@@ -9,7 +9,7 @@ class BugsController < ApplicationController
   end
 
   def create
-    
+
     @bug = @project.bugs.new(bug_params)
     @bug.created_by = current_user.id
 
