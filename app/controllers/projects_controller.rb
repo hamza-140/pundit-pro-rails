@@ -124,9 +124,17 @@ class ProjectsController < ApplicationController
     puts params.inspect # Output params to the console
     query = params[:q]
     @users = User.where("email LIKE ?", "%#{query}%")
-    @pagy, @users = pagy(@users)
+
+    begin
+      @pagy, @users = pagy(@users)
+    rescue Pagy::Error => e
+      flash.now[:alert] = "Pagy error: #{e.message}"
+      @users = User.none
+    end
+
     # @users = User.all
   end
+
 
   private
 
@@ -141,6 +149,7 @@ class ProjectsController < ApplicationController
       :description,
       :created_by,
       user_ids: [],
+      users_attributes: [:id, :name, :email],
       bugs_attributes: [:id, :title, :description, :user_id, :deadline, :screenshot, :bug_type, :status],
     ).tap do |whitelisted|
       if whitelisted[:bugs_attributes].present?

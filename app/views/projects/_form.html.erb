@@ -1,0 +1,45 @@
+<!-- app/views/projects/_form.html.erb -->
+<%= render "users/shared/error_messages", resource: @project %>
+<div class="text-center mt-4 name">
+  New Project
+</div>
+<div class="mb-3">
+  <%= f.label :name, class: "form-label" %>
+  <%= f.text_field :name, class: "form-control", placeholder: 'Project Name', autofocus: true %>
+</div>
+
+<div class="mb-3">
+  <%= f.label :description, class: "form-label" %>
+  <%= f.text_area :description, class: "form-control", placeholder: 'Project Description' %>
+</div>
+
+<div class="mb-3">
+  <%= f.label :developers, class: "form-label" %><br/>
+  <%= f.collection_check_boxes :user_ids, User.where(role: "developer"), :id, :name, { class: "form-check-input" } %>
+</div>
+
+<div class="mb-3">
+  <%= f.label :quality_assurance %><br />
+  <%= f.collection_check_boxes :user_ids, User.where(role: "quality_assurance"), :id, :name %>
+</div>
+
+<template data-nested-form-target="template">
+  <%= f.fields_for :bugs, Bug.new, child_index: 'NEW_RECORD' do |todo_fields| %>
+    <%= render "bug_fields", f: todo_fields %>
+  <% end %>
+</template>
+
+<%= f.fields_for :bugs do |todo_fields| %>
+  <%= render "bug_fields", f: todo_fields %>
+<% end %>
+
+<!-- Inserted elements will be injected before that target. -->
+<div data-nested-form-target="target"></div>
+
+<button type="button" data-action="nested-form#add">Add Bug</button>
+
+<!-- Nested attributes for bugs -->
+
+<div class="actions">
+  <%= f.submit "Add", class: "btn mt-3" %>
+</div>
