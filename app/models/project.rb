@@ -1,10 +1,11 @@
 class Project < ApplicationRecord
-  has_and_belongs_to_many :users
   has_many :bugs, dependent: :destroy
   validates :name, presence: true
   validates :created_by, presence: true
   validates :description, presence: true, length: { minimum: 10 }
-  accepts_nested_attributes_for :users, allow_destroy: true
+  has_many :project_users, dependent: :destroy, inverse_of: :project
+  has_many :users, through: :project_users
+  accepts_nested_attributes_for :project_users, allow_destroy: true, reject_if: :all_blank
 
   accepts_nested_attributes_for :bugs, allow_destroy: true,
                                        reject_if: :all_blank

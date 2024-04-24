@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_04_19_023512) do
+ActiveRecord::Schema[7.1].define(version: 2024_04_24_205906) do
   create_table "articles", force: :cascade do |t|
     t.string "title"
     t.text "body"
@@ -34,6 +34,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_19_023512) do
     t.index ["project_id"], name: "index_bugs_on_project_id"
     t.index ["title"], name: "index_bugs_on_title", unique: true
     t.index ["user_id"], name: "index_bugs_on_user_id"
+  end
+
+  create_table "project_users", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id"], name: "index_project_users_on_project_id"
+    t.index ["user_id"], name: "index_project_users_on_user_id"
   end
 
   create_table "projects", force: :cascade do |t|
@@ -65,5 +74,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_19_023512) do
 
   add_foreign_key "bugs", "projects"
   add_foreign_key "bugs", "users"
+  add_foreign_key "project_users", "projects"
+  add_foreign_key "project_users", "users"
   add_foreign_key "projects", "users", column: "created_by"
 end

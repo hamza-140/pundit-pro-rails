@@ -106,9 +106,7 @@ class ProjectsController < ApplicationController
   def new
     @project = Project.new
     @users = User.all
-    @bug = Bug.new(project: @project)
-    @project.bugs.build
-    @bug.created_by = current_user.id
+    @project.project_users.build
     authorize @project
   end
 
@@ -149,6 +147,7 @@ class ProjectsController < ApplicationController
       :description,
       :created_by,
       user_ids: [],
+      project_users_attributes: [:id,:project_id, :user_id,:_destroy],
       users_attributes: [:id, :name, :email],
       bugs_attributes: [:id, :title, :description, :user_id, :deadline, :screenshot, :bug_type, :status],
     ).tap do |whitelisted|
