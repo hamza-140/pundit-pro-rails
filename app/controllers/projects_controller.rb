@@ -57,25 +57,27 @@ class ProjectsController < ApplicationController
   def update
     authorize @project
 
-    # Store the current users before updating the project
-    current_user_ids = @project.user_ids
-
-    # Store the current assigned bug users before updating the project
-    current_bug_user_ids = @project.bugs.pluck(:user_id)
-
+    # Store the current user IDs before updating the project
+    current_user_ids = @project.project_users.pluck(:user_id)
+    puts "current users"
+    print(current_user_ids)
     if @project.update(project_params)
       # Determine newly added users
-      new_user_ids = @project.user_ids - current_user_ids
-
+      new_user_ids = @project.project_users.pluck(:user_id) - current_user_ids
+      puts "new users"
+      print(new_user_ids)
       # Send notification to newly added users
       new_user_ids.each do |user_id|
         SendNotificationJob.perform_later([user_id], :project_assignment, @project)
       end
 
       # Remove user from associated bugs if they are removed from the project
-      removed_user_ids = current_user_ids - @project.user_ids
+      removed_user_ids = current_user_ids - @project.project_users.pluck(:user_id)
+      puts "removed users"
+      print(removed_user_ids)
       removed_user_ids.each do |user_id|
-        @project.bugs.where(user_id: user_id).update_all(user_id: nil)
+        removed_user_bugs = @project.bugs.where(user_id: user_id)
+        removed_user_bugs.update_all(user_id: nil)
       end
 
       redirect_to @project, notice: "Project updated successfully."
@@ -83,6 +85,10 @@ class ProjectsController < ApplicationController
       render :edit, status: :unprocessable_entity
     end
   end
+
+
+
+
 
   def destroy
     authorize @project
