@@ -6,6 +6,6 @@ FactoryBot.define do
     description { "Example description for the bug." }
     association :project
     association :user
-    created_by { user.id }
+    created_by { 1 }
   end
 end

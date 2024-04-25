@@ -32,27 +32,29 @@ class ProjectsController < ApplicationController
     @project = Project.new(project_params)
     @project.users << current_user
     @project.created_by = current_user.id
-    # @project.bugs.created_by = current_user.id
 
-    authorize @project
-
-    if @project.save
-      if params[:user_ids].present?
-        user_ids = params[:user_ids].reject(&:empty?)
-        user_ids.each do |user_id|
-          @project.users << User.find(user_id)
+    if current_user.role == "manager"
+      if @project.save
+        if params[:user_ids].present?
+          user_ids = params[:user_ids].reject(&:empty?)
+          user_ids.each do |user_id|
+            @project.users << User.find(user_id)
+          end
         end
+        SendNotificationJob.perform_later(@project.users.pluck(:id), :project_assignment, @project)
+        redirect_to @project, notice: "Project created successfully."
+      else
+        @users = User.all
+        render :new, status: :unprocessable_entity
       end
-      SendNotificationJob.perform_later(@project.users.pluck(:id), :project_assignment, @project)
-      redirect_to @project, notice: "Project created successfully."
     else
-      @users = User.all
-      render :new, status: :unprocessable_entity
+      render :unauthorized, status: :unauthorized
     end
   rescue ActiveRecord::RecordNotUnique => e
     @project.errors.add(:base, "A bug with the same title already exists.")
     render :new, status: :unprocessable_entity
   end
+
 
   def update
     authorize @project

@@ -1,4 +1,7 @@
 <div class="wrapper">
+  <div class="text-center mt-4 name">
+    New Project
+  </div>
     <%= form_with(model: @project, data: { controller: "nested-form", nested_form_wrapper_selector_value: '.nested-form-wrapper' }) do |f| %>
       <%= render "projects/form", f: f %>
     <% end %>

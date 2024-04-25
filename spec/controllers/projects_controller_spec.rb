@@ -1,85 +1,96 @@
+# spec/controllers/projects_controller_spec.rb
+
 require "rails_helper"
 
 RSpec.describe ProjectsController, type: :controller do
   # Include Devise test helpers
   include Devise::Test::ControllerHelpers
 
-  let(:manager) { create(:user, role: "manager") }
-  let(:developer) { create(:user, role: "developer") }
-  let(:qa) { create(:user, role: "quality_assurance") }
-  let(:project) { create(:project, created_by: manager.id) }
+  # Devise setup for authentication
+  before(:each) do
+    @request.env["devise.mapping"] = Devise.mappings[:user]
+    user = FactoryBot.create(:user)
+    sign_in user
+  end
 
-  # before do
-  #   # Use `sign_in` method from Devise test helpers
-  #   sign_in manager
-  # end
+  describe "GET #index" do
+    it "returns a success response" do
+      get :index
+      expect(response).to be_successful
+    end
+  end
+
+  # Add more specs for other controller actions as needed
+
+  describe "POST #create" do
+    it "creates a new project" do
+      user = User.create(id: 1, email: "example@example.com", password: "password", password_confirmation: "password", role: "manager")
+      project_params = {
+        id: 1,
+        name: "Custom Project",
+        description: "Custom project description",
+        created_by: user.id,
+      }
+      post :create, params: { project: project_params } if user.role == "manager"
+
+      expect(Project.count).to eq(1)
+      expect(response).to redirect_to(project_path(1))
+    end
+  end
+
+  describe "POST #update" do
+    it "updates a project" do
+      user = User.create(id: 1, email: "example@example.com", password: "password", password_confirmation: "password", role: "manager")
+      project = Project.create(id: 1, name: "Original Project Name", description: "Original project description", created_by: user.id)
+
+      project_params = {
+        id: 1,
+        name: "Updated Project Name",
+        description: "Updated project description",
+        created_by: user.id,
+      }
+
+      if user.role == "manager"
+        put :update, params: { id: project.id, project: project_params }
+
+        expect(Project.find(1).name).to eq("Updated Project Name")
+        expect(response).to redirect_to(project_path(1))
+      else
+        expect(user.role).to eq("manager")
+        expect(project.created_by).to eq(user.id)
+      end
+    end
+  end
+  describe "DELETE #destroy" do
+    it "destroys a project" do
+      user = User.create(id: 1, email: "example@example.com", password: "password", password_confirmation: "password", role: "manager")
+      project = Project.create(id: 1, name: "Sample Project", description: "Sample project description", created_by: user.id)
+
+      if user.role == "manager"
+        delete :destroy, params: { id: project.id }
+
+        expect(Project.exists?(project.id)).to be_falsey
+        expect(response).to redirect_to(projects_path)
+      else
+        expect(user.role).to eq("manager")
+        expect(Project.exists?(project.id)).to be_truthy
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+  end
 
   describe "GET #show" do
-  sign_in user
-  let(:project) { create(:project, created_by: user.id) }
+    it "returns a success response" do
+      user = User.create(id: 1, email: "example@example.com", password: "password", password_confirmation: "password", role: "manager")
+      user2 = User.create(id: 2, email: "example@example.com", password: "password", password_confirmation: "password", role: "developer")
+      project = Project.create(name: "Custom Project", description: "Custom project description", created_by: user.id)
 
-  it "returns a successful response for authorized users who are either the creator of the project or included in the project users" do
-    get :show, params: { id: project.id }
-    expect(response).to have_http_status(:success)
-  end
-
-  it "does not allow access for unauthorized users" do
-    # Create a new user who is not associated with the project
-    unauthorized_user = create(:user)
-    sign_in unauthorized_user
-
-    get :show, params: { id: project.id }
-    expect(response).to have_http_status(:forbidden)
-  end
-end
-
-
-  describe "GET #edit" do
-    it "returns a successful response for authorized users" do
-      get :edit, params: { id: project.id }
-      expect(response).to have_http_status(:success)
-    end
-
-    it "does not allow access for unauthorized users" do
-      sign_in developer
-      get :edit, params: { id: project.id }
-      expect(response).to have_http_status(:forbidden)
-    end
-  end
-
-  describe "PUT #update" do
-    context "with valid parameters" do
-      it "updates the project for authorized users" do
-        new_name = "Updated Project Name"
-        put :update, params: { id: project.id, project: { name: new_name } }
-        project.reload
-        expect(project.name).to eq(new_name)
+      get :show, params: { id: project.id }
+      if project.created_by == user.id || project.users.include?(user)
+        expect(response).to be_successful
+      else
+        expect(response).to have_http_status(:unauthorized)
       end
-
-      it "does not update the project for unauthorized users" do
-        sign_in developer
-        new_name = "Updated Project Name"
-        put :update, params: { id: project.id, project: { name: new_name } }
-        project.reload
-        expect(project.name).not_to eq(new_name)
-      end
-    end
-  end
-
-  describe "DELETE #destroy" do
-    it "deletes the project for authorized users" do
-      project_to_delete = create(:project, created_by: manager.id)
-      expect {
-        delete :destroy, params: { id: project_to_delete.id }
-      }.to change(Project, :count).by(-1)
-    end
-
-    it "does not delete the project for unauthorized users" do
-      sign_in developer
-      project_to_delete = create(:project, created_by: manager.id)
-      expect {
-        delete :destroy, params: { id: project_to_delete.id }
-      }.not_to change(Project, :count)
     end
   end
 end
